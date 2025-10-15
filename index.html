@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema Comparador Editável - Grupo Lider Madeiras</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📊 Sistema Comparador Editável</h1>
+            <p>Todos os campos são editáveis! <span id="apiStatus"></span></p>
+        </div>
+
+        <div class="tabs">
+            <button class="tab active" onclick="showTab(0)">📋 Fornecedores/Clientes</button>
+            <button class="tab" onclick="showTab(1)">💰 Preços</button>
+            <button class="tab" onclick="showTab(2)">🚛 Caminhões</button>
+            <button class="tab" onclick="showTab(3)">📍 Dist. Clientes</button>
+            <button class="tab" onclick="showTab(4)">🎯 Simulação</button>
+            <button class="tab" onclick="showTab(5)">🏆 Resultados</button>
+            <button class="tab" onclick="showTab(6)">📞 Telefones</button>
+        </div>
+
+        <div class="content">
+            <!-- ABA 1: FORNECEDORES/CLIENTES -->
+            <div class="tab-content active">
+                <div class="section">
+                    <h3>Aba 1: CADASTRO FORNECEDORES/CLIENTES</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Clique nas células para editar</p>
+
+                    <div class="alert success">
+                        <strong>✏️ Campos Editáveis:</strong> Clique para editar. Alterações são salvas automaticamente!
+                    </div>
+
+                    <table id="tableFornecedores">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Nome Fornecedor/Cliente</th>
+                                <th>Estado</th>
+                                <th>Cidade</th>
+                                <th>Email</th>
+                                <th>KM</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fornecedoresBody">
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-add" onclick="adicionarFornecedor()">➕ Adicionar Fornecedor/Cliente</button>
+                </div>
+            </div>
+
+            <!-- ABA 2: PREÇOS -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 2: PREÇOS MADEIRA</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Edite preços dos produtos</p>
+
+                    <div class="alert success">
+                        <strong>✏️ Campos Editáveis:</strong> Clique para editar preços!
+                    </div>
+
+                    <table id="tablePrecos">
+                        <thead>
+                            <tr>
+                                <th>ID Forn./Cliente</th>
+                                <th>Espes.</th>
+                                <th>Larg.</th>
+                                <th>Compr.</th>
+                                <th>Tipo</th>
+                                <th>Preço</th>
+                            </tr>
+                        </thead>
+                        <tbody id="precosBody">
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-add" onclick="adicionarPreco()">➕ Adicionar Preço</button>
+                </div>
+            </div>
+
+            <!-- ABA 3: CAMINHÕES -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 3: CONFIG CAMINHÕES</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Configuração dos caminhões</p>
+
+                    <div class="alert success">
+                        <strong>✏️ Campos Editáveis:</strong> Ajuste capacidades e preços!
+                    </div>
+
+                    <table id="tableCaminhoes">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Capac. (t)</th>
+                                <th>Preço/KM</th>
+                                <th>Obs.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="caminhoesBody">
+                        </tbody>
+                    </table>
+
+                    <button class="btn btn-add" onclick="adicionarCaminhao()">➕ Adicionar Caminhão</button>
+                </div>
+            </div>
+
+            <!-- ABA 4: DISTÂNCIAS -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 4: DISTÂNCIAS PARA CLIENTES (KM)</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Distâncias entre fornecedores e clientes</p>
+
+                    <div class="alert" style="margin-bottom: 15px;">
+                        <strong>💡 Dica:</strong> Adicione, remova ou edite cidades clientes no cadastro de cada Fornecedor/Cliente (clique no nome na Aba 1)
+                    </div>
+
+                    <div class="alert success">
+                        <strong>✏️ Campos Editáveis:</strong> Atualize as distâncias!
+                    </div>
+
+                    <table id="tableDistancias">
+                        <thead>
+                            <tr>
+                                <th>Origem</th>
+                                <th>C. Grande</th>
+                                <th>S. Paulo</th>
+                                <th>Curitiba</th>
+                                <th>Alegre</th>
+                                <th>B. Horiz.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="distanciasBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ABA 5: SIMULAÇÃO -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 5: SIMULAÇÃO VENDA</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Configure os dados da venda</p>
+
+                    <div class="example-box">
+                        <h4 style="margin-bottom: 12px; color: #667eea; font-size: 14px;">⚙️ Dados da Venda</h4>
+
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Cidade Destino (Cliente)</label>
+                                <select id="cidadeDestino">
+                                    <option>Campo Grande/MS</option>
+                                    <option>São Paulo/SP</option>
+                                    <option>Curitiba/PR</option>
+                                    <option>Porto Alegre/RS</option>
+                                    <option>Belo Horizonte/MG</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>M³ Total</label>
+                                <input type="number" id="m3Total" value="50" min="1" step="0.1">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Valor de Venda (R$/m³)</label>
+                                <input type="number" id="valorVenda" value="1230" min="0" step="0.01">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Tipo de Madeira</label>
+                                <select id="tipoMadeira">
+                                    <option value="verde">Verde (1000 kg/m³)</option>
+                                    <option value="seca">Seca (500 kg/m³)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="example-box" style="margin-top: 12px;">
+                        <h4 style="margin-bottom: 12px; color: #667eea; font-size: 14px;">📦 Composição da Carga</h4>
+
+                        <div class="produto-row" style="font-weight: 600; color: #667eea; margin-bottom: 10px;">
+                            <div>Produto</div>
+                            <div>Esp.</div>
+                            <div>Larg.</div>
+                            <div>%</div>
+                            <div>M³</div>
+                        </div>
+
+                        <div class="produto-row">
+                            <input type="text" value="Tábua 2x30cm" readonly style="background: #f8f9fa;">
+                            <input type="number" class="espessura" value="2.0" step="0.1">
+                            <input type="number" class="largura" value="30" step="1">
+                            <input type="number" class="percentual" value="50" min="0" max="100" step="1">
+                            <input type="text" class="m3produto" readonly style="background: #e7f3ff;">
+                        </div>
+
+                        <div class="produto-row">
+                            <input type="text" value="Tábua 2x25cm" readonly style="background: #f8f9fa;">
+                            <input type="number" class="espessura" value="2.0" step="0.1">
+                            <input type="number" class="largura" value="25" step="1">
+                            <input type="number" class="percentual" value="20" min="0" max="100" step="1">
+                            <input type="text" class="m3produto" readonly style="background: #e7f3ff;">
+                        </div>
+
+                        <div class="produto-row">
+                            <input type="text" value="Tábua 2x20cm" readonly style="background: #f8f9fa;">
+                            <input type="number" class="espessura" value="2.0" step="0.1">
+                            <input type="number" class="largura" value="20" step="1">
+                            <input type="number" class="percentual" value="30" min="0" max="100" step="1">
+                            <input type="text" class="m3produto" readonly style="background: #e7f3ff;">
+                        </div>
+                    </div>
+
+                    <div class="alert">
+                        <strong>✅ Total dos Percentuais:</strong> <span id="totalPercentual" style="font-weight: 700;">100</span>%
+                    </div>
+
+                    <button class="btn" onclick="calcularFornecedores()">🔍 Analisar Fornecedores/Clientes</button>
+                </div>
+            </div>
+
+            <!-- ABA 6: RESULTADOS -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 6: RESULTADOS COMPARAÇÃO</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Análise de todos os fornecedores/clientes</p>
+
+                    <div class="instruction">
+                        <h4>🔍 Cálculos Automáticos:</h4>
+                        <ul>
+                            <li><strong>Custo Madeira:</strong> <span class="formula">=SOMA(Preço*M³)</span></li>
+                            <li><strong>Peso Total:</strong> <span class="formula">=M³*Peso_Madeira</span></li>
+                            <li><strong>Valor Frete:</strong> <span class="formula">=Distância*Preço_KM</span></li>
+                            <li><strong>Custo Total:</strong> <span class="formula">=Madeira+Frete</span></li>
+                            <li><strong>Margem Lucro:</strong> <span class="formula">=(Venda-Custo)/Custo*100</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="results-container" id="resultsContainer"></div>
+
+                    <div id="noResults" class="alert">
+                        <strong>📊 Aguardando cálculo...</strong> Configure a simulação e clique em "Analisar Fornecedores/Clientes".
+                    </div>
+                </div>
+            </div>
+
+            <!-- ABA 7: TELEFONES -->
+            <div class="tab-content">
+                <div class="section">
+                    <h3>Aba 7: CONTATOS TELEFONES</h3>
+                    <p style="margin-bottom: 12px; font-size: 13px;">Lista de contatos dos fornecedores/clientes</p>
+
+                    <div class="alert success">
+                        <strong>✏️ Campos Editáveis:</strong> Adicione telefones e WhatsApp!
+                    </div>
+
+                    <table id="tableTelefones">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Fornecedor/Cliente</th>
+                                <th>Cidade</th>
+                                <th>Telefone</th>
+                                <th>Celular</th>
+                                <th>WhatsApp</th>
+                            </tr>
+                        </thead>
+                        <tbody id="telefonesBody">
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Fornecedor/Cliente -->
+    <div class="modal-overlay" id="modalFornecedor">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitulo">📋 Fornecedor/Cliente</h2>
+                <button class="modal-close" onclick="fecharModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <!-- Dados Cadastrais -->
+                <div class="modal-section">
+                    <h3>📊 Dados Cadastrais</h3>
+                    <div class="alert success" style="margin-bottom: 12px;">
+                        <strong>✏️ Campos Editáveis:</strong> Clique nos campos para editar Nome, Estado, Cidade, Email e KM Base!
+                    </div>
+                    <div class="data-grid" id="modalDadosCadastrais">
+                    </div>
+
+                    <!-- Distâncias para Clientes -->
+                    <div style="margin-top: 20px; padding-top: 20px; border-top: 2px solid #e9ecef;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                            <h4 style="color: #667eea; font-size: 15px; margin: 0;">📍 Distâncias para Clientes</h4>
+                            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                                <button class="btn-add-cidade" onclick="event.stopPropagation(); adicionarCidadeCliente();" title="Adicionar nova cidade de destino">➕ Adicionar</button>
+                                <button class="btn-calcular-api" onclick="event.stopPropagation(); calcularDistanciasAPI();" title="Calcular todas as distâncias automaticamente">🔄 Calcular</button>
+                            </div>
+                        </div>
+                        <div class="alert success" style="margin-bottom: 12px; font-size: 12px;" id="alertAPIStatus">
+                            <strong>✅ OSRM Ativo - 100% Gratuito!</strong>
+                            <br>• Distâncias calculadas automaticamente por rotas reais
+                            <br>• Sem necessidade de API Key
+                            <br>• Use "➕ Adicionar" para novas cidades
+                            <br>• Use "🔄 Calcular" para recalcular todas
+                        </div>
+                        <div class="distancias-grid" id="modalDistanciasCadastrais">
+                            <p style="color: #6c757d; text-align: center; grid-column: 1/-1; padding: 20px;">Clique em "➕ Adicionar" para começar.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Preços Madeira Verde -->
+                <div class="modal-section">
+                    <h3>🌲 Preços - Madeira Verde</h3>
+                    <table class="precos-table">
+                        <thead>
+                            <tr>
+                                <th>Espes.</th>
+                                <th>Larg.</th>
+                                <th>Compr.</th>
+                                <th>R$/m³</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalPrecosVerde">
+                        </tbody>
+                    </table>
+                    <button class="btn-add-produto" onclick="adicionarProdutoModal('Verde')">➕ Adicionar Verde</button>
+                </div>
+
+                <!-- Preços Madeira Seca -->
+                <div class="modal-section">
+                    <h3>🪵 Preços - Madeira Seca</h3>
+                    <table class="precos-table">
+                        <thead>
+                            <tr>
+                                <th>Espes.</th>
+                                <th>Larg.</th>
+                                <th>Compr.</th>
+                                <th>R$/m³</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalPrecosSeca">
+                        </tbody>
+                    </table>
+                    <button class="btn-add-produto" onclick="adicionarProdutoModal('Seca')">➕ Adicionar Seco</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Adicionar Cidade -->
+    <div class="modal-overlay" id="modalAdicionarCidade" style="z-index: 10001;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h2>➕ Adicionar Cidade Cliente</h2>
+                <button class="modal-close" onclick="event.stopPropagation(); fecharModalCidade();">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="alert" style="margin-bottom: 20px; font-size: 13px; background: #e7f3ff; border-left-color: #0066cc;">
+                    <strong>💡 Formato Correto:</strong> Digite o nome da cidade seguido do estado<br>
+                    <strong>✓ Exemplos corretos:</strong><br>
+                    • "Rio de Janeiro/RJ"<br>
+                    • "Brasília/DF"<br>
+                    • "Manaus/AM"<br>
+                    • "Porto Alegre/RS"
+                </div>
+
+                <div class="form-group">
+                    <label style="font-size: 14px; font-weight: 600; color: #495057; margin-bottom: 8px; display: block;">
+                        🌍 Nome da Cidade
+                    </label>
+                    <input
+                        type="text"
+                        id="inputNovaCidade"
+                        placeholder="Ex: Rio de Janeiro/RJ"
+                        style="width: 100%; padding: 12px; border: 2px solid #e9ecef; border-radius: 8px; font-size: 14px; transition: all 0.3s;"
+                        onkeypress="if(event.key === 'Enter') { event.preventDefault(); confirmarAdicionarCidade(); }"
+                    >
+                </div>
+
+                <div class="form-group" style="margin-top: 20px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px;">
+                        <input type="checkbox" id="checkCalcularAuto" checked style="width: 18px; height: 18px; cursor: pointer;">
+                        <span style="color: #495057;">🔄 Calcular distância automaticamente</span>
+                    </label>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button class="btn" onclick="confirmarAdicionarCidade()" style="flex: 1;">✓ Confirmar</button>
+                    <button class="btn" onclick="fecharModalCidade()" style="flex: 1; background: linear-gradient(135deg, #6c757d 0%, #495057 100%);">✕ Cancelar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts JavaScript -->
+    <script src="js/config.js"></script>
+    <script src="js/data.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/calculations.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/tabs.js"></script>
+    <script src="js/modal.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

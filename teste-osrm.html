@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste OSRM - Cálculo de Distâncias</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .test-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .test-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .cidade-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            color: #495057;
+            margin-bottom: 5px;
+            font-size: 13px;
+        }
+
+        input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            border: 2px solid #e9ecef;
+        }
+
+        .result.success {
+            border-color: #28a745;
+            background: linear-gradient(to right, #d4edda 0%, white 5%);
+        }
+
+        .result.error {
+            border-color: #dc3545;
+            background: linear-gradient(to right, #f8d7da 0%, white 5%);
+        }
+
+        .result h4 {
+            margin-bottom: 15px;
+            color: #212529;
+            font-size: 16px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+        }
+
+        .info-label {
+            font-size: 11px;
+            color: #6c757d;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+
+        .info-value {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+        }
+
+        .log {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 15px;
+        }
+
+        .log-line {
+            margin: 3px 0;
+        }
+
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff4444; }
+        .log-warning { color: #ffaa00; }
+        .log-info { color: #00aaff; }
+
+        .examples {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .example-btn {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            padding: 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 13px;
+        }
+
+        .example-btn:hover {
+            border-color: #667eea;
+            background: white;
+            transform: translateY(-2px);
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste OSRM - Cálculo de Distâncias</h1>
+        <p class="subtitle">Sistema 100% Gratuito - Open Source Routing Machine</p>
+
+        <div class="test-section">
+            <h3>🌍 Calcular Distância entre Cidades</h3>
+
+            <div class="cidade-input">
+                <div>
+                    <label>Cidade de Origem</label>
+                    <input type="text" id="cidadeOrigem" placeholder="Ex: São Paulo/SP" value="São Paulo/SP">
+                </div>
+                <div>
+                    <label>Cidade de Destino</label>
+                    <input type="text" id="cidadeDestino" placeholder="Ex: Rio de Janeiro/RJ" value="Rio de Janeiro/RJ">
+                </div>
+            </div>
+
+            <button class="btn" id="btnCalcular" onclick="testarCalculo()">
+                🔍 Calcular Distância
+            </button>
+
+            <div class="examples">
+                <button class="example-btn" onclick="setarCidades('São Paulo/SP', 'Rio de Janeiro/RJ')">
+                    📍 SP → RJ
+                </button>
+                <button class="example-btn" onclick="setarCidades('Cuiabá/MT', 'Campo Grande/MS')">
+                    📍 Cuiabá → Campo Grande
+                </button>
+                <button class="example-btn" onclick="setarCidades('Porto Alegre/RS', 'Curitiba/PR')">
+                    📍 POA → Curitiba
+                </button>
+                <button class="example-btn" onclick="setarCidades('Brasília/DF', 'Belo Horizonte/MG')">
+                    📍 BSB → BH
+                </button>
+            </div>
+        </div>
+
+        <div id="resultado"></div>
+
+        <div id="console" style="display: none;">
+            <div class="log" id="logConsole"></div>
+        </div>
+    </div>
+
+    <script>
+        // Logs
+        const logs = [];
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const logEntry = `[${timestamp}] ${message}`;
+            logs.push({ message: logEntry, type });
+
+            const logConsole = document.getElementById('logConsole');
+            const logLine = document.createElement('div');
+            logLine.className = `log-line log-${type}`;
+            logLine.textContent = logEntry;
+            logConsole.appendChild(logLine);
+            logConsole.scrollTop = logConsole.scrollHeight;
+
+            document.getElementById('console').style.display = 'block';
+            console.log(logEntry);
+        }
+
+        // Geocodificar cidade
+        async function geocodificarCidade(cidade) {
+            try {
+                addLog(`🔍 Geocodificando: ${cidade}`, 'info');
+                const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(cidade)}&format=json&limit=1`;
+                const response = await fetch(url, {
+                    headers: { 'User-Agent': 'Lider-Calculadora-Test/1.0' }
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Erro HTTP: ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.length === 0) {
+                    throw new Error(`Cidade não encontrada: ${cidade}`);
+                }
+
+                const coords = {
+                    lat: parseFloat(data[0].lat),
+                    lng: parseFloat(data[0].lon)
+                };
+
+                addLog(`✅ Coordenadas encontradas: ${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`, 'success');
+                return coords;
+            } catch (error) {
+                addLog(`❌ Erro ao geocodificar: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Calcular distância OSRM
+        async function calcularDistanciaOSRM(coordsOrigem, coordsDestino) {
+            try {
+                addLog(`🚗 Calculando rota via OSRM...`, 'info');
+                const url = `https://router.project-osrm.org/route/v1/driving/${coordsOrigem.lng},${coordsOrigem.lat};${coordsDestino.lng},${coordsDestino.lat}?overview=false`;
+
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.code !== 'Ok') {
+                    throw new Error(`OSRM erro: ${data.code}`);
+                }
+
+                const distanciaMetros = data.routes[0].distance;
+                const duracaoSegundos = data.routes[0].duration;
+                const distanciaKm = Math.round(distanciaMetros / 1000);
+                const duracaoHoras = (duracaoSegundos / 3600).toFixed(2);
+
+                addLog(`✅ Rota calculada: ${distanciaKm} km em ${duracaoHoras}h`, 'success');
+
+                return {
+                    distancia: distanciaKm,
+                    duracao: duracaoHoras,
+                    distanciaMetros: distanciaMetros
+                };
+            } catch (error) {
+                addLog(`❌ Erro OSRM: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        // Calcular Haversine
+        function calcularDistanciaHaversine(coords1, coords2) {
+            addLog(`📐 Calculando distância Haversine (fallback)...`, 'warning');
+            const R = 6371;
+            const dLat = (coords2.lat - coords1.lat) * Math.PI / 180;
+            const dLng = (coords2.lng - coords1.lng) * Math.PI / 180;
+
+            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                      Math.cos(coords1.lat * Math.PI / 180) * Math.cos(coords2.lat * Math.PI / 180) *
+                      Math.sin(dLng / 2) * Math.sin(dLng / 2);
+
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distanciaLinhaReta = R * c;
+            const distanciaAproximada = Math.round(distanciaLinhaReta * 1.4);
+
+            addLog(`✅ Distância aproximada: ${distanciaAproximada} km`, 'warning');
+            return distanciaAproximada;
+        }
+
+        // Teste principal
+        async function testarCalculo() {
+            const cidadeOrigem = document.getElementById('cidadeOrigem').value.trim();
+            const cidadeDestino = document.getElementById('cidadeDestino').value.trim();
+
+            if (!cidadeOrigem || !cidadeDestino) {
+                alert('❌ Preencha ambas as cidades!');
+                return;
+            }
+
+            const btn = document.getElementById('btnCalcular');
+            const resultado = document.getElementById('resultado');
+
+            // Limpar logs anteriores
+            document.getElementById('logConsole').innerHTML = '';
+            logs.length = 0;
+
+            btn.disabled = true;
+            btn.innerHTML = '<span class="loading">⏳</span> Calculando...';
+            resultado.innerHTML = '';
+
+            const inicio = Date.now();
+
+            try {
+                addLog(`🚀 Iniciando cálculo: ${cidadeOrigem} → ${cidadeDestino}`, 'info');
+
+                // Método 1: OSRM
+                let distanciaFinal, metodo, duracao;
+
+                try {
+                    const coordsOrigem = await geocodificarCidade(cidadeOrigem);
+                    const coordsDestino = await geocodificarCidade(cidadeDestino);
+                    const resultadoOSRM = await calcularDistanciaOSRM(coordsOrigem, coordsDestino);
+
+                    distanciaFinal = resultadoOSRM.distancia;
+                    duracao = resultadoOSRM.duracao;
+                    metodo = 'OSRM - Rota Real (Gratuito)';
+
+                } catch (errorOSRM) {
+                    // Fallback para Haversine
+                    addLog(`⚠️ OSRM falhou, usando Haversine...`, 'warning');
+                    const coordsOrigem = await geocodificarCidade(cidadeOrigem);
+                    const coordsDestino = await geocodificarCidade(cidadeDestino);
+                    distanciaFinal = calcularDistanciaHaversine(coordsOrigem, coordsDestino);
+                    metodo = 'Haversine - Aproximado (linha reta × 1.4)';
+                    duracao = 'N/A';
+                }
+
+                const tempoTotal = ((Date.now() - inicio) / 1000).toFixed(2);
+                addLog(`🎉 Cálculo concluído em ${tempoTotal}s`, 'success');
+
+                // Mostrar resultado
+                resultado.innerHTML = `
+                    <div class="result success">
+                        <h4>✅ Distância Calculada com Sucesso!</h4>
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <div class="info-label">Origem</div>
+                                <div class="info-value" style="font-size: 16px;">${cidadeOrigem}</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Destino</div>
+                                <div class="info-value" style="font-size: 16px;">${cidadeDestino}</div>
+                            </div>
+                            <div class="info-item" style="border-left-color: #28a745;">
+                                <div class="info-label">Distância</div>
+                                <div class="info-value" style="color: #28a745;">${distanciaFinal.toLocaleString('pt-BR')} km</div>
+                            </div>
+                            <div class="info-item">
+                                <div class="info-label">Duração Estimada</div>
+                                <div class="info-value" style="font-size: 16px;">${duracao}${duracao !== 'N/A' ? 'h' : ''}</div>
+                            </div>
+                            <div class="info-item" style="grid-column: 1 / -1;">
+                                <div class="info-label">Método Utilizado</div>
+                                <div class="info-value" style="font-size: 14px; color: #667eea;">${metodo}</div>
+                            </div>
+                            <div class="info-item" style="grid-column: 1 / -1; background: #e7f3ff; border-left-color: #0066cc;">
+                                <div class="info-label">Tempo de Processamento</div>
+                                <div class="info-value" style="font-size: 14px;">${tempoTotal}s</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                addLog(`💥 Erro geral: ${error.message}`, 'error');
+                resultado.innerHTML = `
+                    <div class="result error">
+                        <h4>❌ Erro ao Calcular Distância</h4>
+                        <p style="color: #dc3545; margin-top: 10px;"><strong>Erro:</strong> ${error.message}</p>
+                        <p style="color: #6c757d; margin-top: 10px; font-size: 13px;">Verifique se as cidades estão escritas corretamente no formato: "Cidade/UF"</p>
+                    </div>
+                `;
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '🔍 Calcular Distância';
+            }
+        }
+
+        // Setar cidades de exemplo
+        function setarCidades(origem, destino) {
+            document.getElementById('cidadeOrigem').value = origem;
+            document.getElementById('cidadeDestino').value = destino;
+        }
+
+        // Permitir Enter para calcular
+        document.getElementById('cidadeOrigem').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testarCalculo();
+        });
+        document.getElementById('cidadeDestino').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') testarCalculo();
+        });
+
+        addLog('🎯 Sistema de teste pronto! Clique em "Calcular" ou use os exemplos.', 'success');
+    </script>
+</body>
+</html>

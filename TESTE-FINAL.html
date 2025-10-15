@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>✅ Teste FINAL - Cards Dinâmicos</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body { padding: 40px; }
+        .alert-big {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            text-align: center;
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+        }
+        .alert-big h1 {
+            margin-bottom: 15px;
+            font-size: 32px;
+        }
+        .alert-big p {
+            font-size: 18px;
+            opacity: 0.95;
+        }
+        .test-section {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border-left: 4px solid #667eea;
+        }
+        .btn-big {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 32px;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+            width: 100%;
+            margin-top: 20px;
+        }
+        .btn-big:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.6);
+        }
+        .status {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border: 2px solid #e9ecef;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        .status.aguardando { border-color: #ffc107; color: #856404; }
+        .status.calculando { border-color: #17a2b8; color: #0c5460; }
+        .status.concluido { border-color: #28a745; color: #155724; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="alert-big">
+            <h1>✅ TESTE FINAL - Criação Dinâmica de Cards</h1>
+            <p>Os cards aparecem SOMENTE após calcular a distância!</p>
+        </div>
+
+        <div class="test-section">
+            <h2 style="color: #667eea; margin-bottom: 20px;">📋 Como Funciona:</h2>
+            <ol style="line-height: 2.5; font-size: 16px;">
+                <li><strong>INICIAL:</strong> Área vazia (sem cards)</li>
+                <li><strong>CLIQUE:</strong> No botão "Calcular 5 Cidades"</li>
+                <li><strong>OBSERVE:</strong> Cada card APARECE quando a distância é calculada</li>
+                <li><strong>EFEITO:</strong> Card surge com animação + fica verde</li>
+                <li><strong>RESULTADO:</strong> 5 cards criados dinamicamente!</li>
+            </ol>
+        </div>
+
+        <div id="status" class="status aguardando">
+            ⏳ Aguardando... Clique no botão abaixo para começar
+        </div>
+
+        <button class="btn-big" onclick="iniciarCalculo()">
+            🚀 Calcular 5 Cidades (Simulação)
+        </button>
+
+        <div style="background: #f8f9fa; padding: 25px; border-radius: 8px; border-left: 4px solid #667eea; margin-top: 30px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="color: #667eea; margin: 0;">📍 Distâncias Calculadas</h3>
+                <span id="contador" style="background: #667eea; color: white; padding: 6px 14px; border-radius: 20px; font-weight: 600; font-size: 14px;">0/5</span>
+            </div>
+            <div class="distancias-grid" id="cardsContainer">
+                <p style="color: #6c757d; text-align: center; grid-column: 1/-1; padding: 40px;">
+                    Clique em "🔄 Calcular" para adicionar cidades automaticamente.
+                </p>
+            </div>
+        </div>
+
+        <div style="background: #fff3cd; padding: 20px; border-radius: 8px; border-left: 4px solid #ffc107; margin-top: 25px;">
+            <h4 style="color: #856404; margin-bottom: 10px;">💡 O que você vai ver:</h4>
+            <ul style="color: #856404; line-height: 2;">
+                <li>Mensagem inicial desaparece</li>
+                <li>Card 1 surge com Campo Grande/MS → 700 km</li>
+                <li>Card 2 surge com São Paulo/SP → 1650 km</li>
+                <li>Card 3 surge com Curitiba/PR → 1950 km</li>
+                <li>Card 4 surge com Porto Alegre/RS → 2400 km</li>
+                <li>Card 5 surge com Belo Horizonte/MG → 1450 km</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const cidades = [
+            { nome: 'Campo Grande/MS', distancia: 700 },
+            { nome: 'São Paulo/SP', distancia: 1650 },
+            { nome: 'Curitiba/PR', distancia: 1950 },
+            { nome: 'Porto Alegre/RS', distancia: 2400 },
+            { nome: 'Belo Horizonte/MG', distancia: 1450 }
+        ];
+
+        let calculadas = 0;
+
+        function atualizarStatus(mensagem, tipo) {
+            const status = document.getElementById('status');
+            status.textContent = mensagem;
+            status.className = 'status ' + tipo;
+        }
+
+        function atualizarContador() {
+            document.getElementById('contador').textContent = `${calculadas}/5`;
+        }
+
+        function criarNovoCard(cidade, distancia) {
+            const container = document.getElementById('cardsContainer');
+
+            // Remover mensagem inicial se existir
+            const mensagem = container.querySelector('p');
+            if (mensagem) mensagem.remove();
+
+            // Criar novo card
+            const novoCard = document.createElement('div');
+            novoCard.className = 'distancia-card';
+            novoCard.setAttribute('data-cidade', cidade);
+            novoCard.innerHTML = `
+                <div class="distancia-icone">📍</div>
+                <div class="distancia-cidade">${cidade}</div>
+                <div class="distancia-valor">${Math.round(distancia)}</div>
+                <div class="distancia-km">km</div>
+            `;
+
+            container.appendChild(novoCard);
+
+            // Animação de entrada
+            novoCard.style.opacity = '0';
+            novoCard.style.transform = 'scale(0.8)';
+
+            setTimeout(() => {
+                novoCard.style.transition = 'all 0.4s ease-out';
+                novoCard.style.opacity = '1';
+                novoCard.style.transform = 'scale(1)';
+
+                // Efeito verde
+                setTimeout(() => {
+                    novoCard.style.borderColor = '#28a745';
+                    novoCard.style.background = 'linear-gradient(to bottom, #d4edda 0%, white 30%)';
+
+                    setTimeout(() => {
+                        novoCard.style.borderColor = '#e9ecef';
+                        novoCard.style.background = 'white';
+                    }, 1200);
+                }, 400);
+            }, 50);
+
+            console.log(`✅ Card criado: ${cidade} = ${distancia} km`);
+        }
+
+        async function iniciarCalculo() {
+            calculadas = 0;
+            atualizarContador();
+            atualizarStatus('🔄 Calculando distâncias...', 'calculando');
+
+            console.log('🚀 Iniciando cálculo de 5 cidades...');
+
+            for (let i = 0; i < cidades.length; i++) {
+                const { nome, distancia } = cidades[i];
+
+                console.log(`📍 [${i + 1}/5] Calculando: Cuiabá/MT → ${nome}`);
+
+                // Simular delay de API
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                // CRIAR NOVO CARD
+                criarNovoCard(nome, distancia);
+
+                calculadas++;
+                atualizarContador();
+
+                console.log(`✅ ${nome}: ${distancia} km`);
+
+                atualizarStatus(`🔄 Calculando... ${calculadas}/5 concluídas`, 'calculando');
+            }
+
+            atualizarStatus('🎉 Cálculo concluído! Todos os 5 cards foram criados!', 'concluido');
+            console.log('🎉 Simulação concluída!');
+        }
+
+        console.log('🎯 Teste FINAL carregado!');
+        console.log('💡 Clique no botão para ver os cards sendo criados dinamicamente!');
+    </script>
+</body>
+</html>

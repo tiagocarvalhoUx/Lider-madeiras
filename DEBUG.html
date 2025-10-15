@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>🔍 DEBUG - Diagnóstico Completo</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 20px;
+        }
+        .section {
+            background: #2d2d2d;
+            padding: 20px;
+            margin: 20px 0;
+            border-left: 4px solid #00ff00;
+            border-radius: 4px;
+        }
+        .btn {
+            background: #00ff00;
+            color: #000;
+            padding: 15px 30px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px 5px;
+        }
+        .btn:hover {
+            background: #00cc00;
+        }
+        .error { color: #ff4444; }
+        .success { color: #00ff00; }
+        .warning { color: #ffaa00; }
+        .info { color: #00aaff; }
+        pre {
+            background: #000;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        h1 { color: #fff; }
+        h2 { color: #00ff00; border-bottom: 2px solid #00ff00; padding-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🔍 DEBUG - Diagnóstico Completo do Sistema</h1>
+
+    <div class="section">
+        <h2>Passo 1: Limpar e Resetar</h2>
+        <button class="btn" onclick="limparTudo()">🗑️ LIMPAR TUDO E RECARREGAR</button>
+        <p>Isso vai:</p>
+        <ul>
+            <li>Limpar localStorage</li>
+            <li>Recarregar a página</li>
+            <li>Começar do zero</li>
+        </ul>
+    </div>
+
+    <div class="section">
+        <h2>Passo 2: Verificar Estado Atual</h2>
+        <button class="btn" onclick="verificarEstado()">📊 VERIFICAR DADOS</button>
+        <pre id="estadoAtual">Clique no botão acima para verificar...</pre>
+    </div>
+
+    <div class="section">
+        <h2>Passo 3: Teste Completo</h2>
+        <button class="btn" onclick="window.location.href='index.html'">🚀 ABRIR SISTEMA PRINCIPAL</button>
+        <button class="btn" onclick="window.location.href='TESTE-FINAL.html'">🧪 ABRIR TESTE VISUAL</button>
+    </div>
+
+    <div class="section">
+        <h2>📋 Log de Eventos</h2>
+        <pre id="logArea" style="height: 300px; overflow-y: auto;"></pre>
+    </div>
+
+    <script>
+        function log(mensagem, tipo = 'info') {
+            const logArea = document.getElementById('logArea');
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const cor = tipo === 'error' ? 'error' : tipo === 'success' ? 'success' : tipo === 'warning' ? 'warning' : 'info';
+            logArea.innerHTML += `<span class="${cor}">[${timestamp}] ${mensagem}</span>\n`;
+            logArea.scrollTop = logArea.scrollHeight;
+            console.log(mensagem);
+        }
+
+        function limparTudo() {
+            log('🗑️ Limpando localStorage...', 'warning');
+            localStorage.clear();
+            log('✅ LocalStorage limpo!', 'success');
+            log('🔄 Recarregando em 2 segundos...', 'info');
+
+            setTimeout(() => {
+                location.reload();
+            }, 2000);
+        }
+
+        function verificarEstado() {
+            log('📊 Verificando estado do sistema...', 'info');
+
+            const estadoAtual = document.getElementById('estadoAtual');
+            let relatorio = '';
+
+            // Verificar localStorage
+            const keys = Object.keys(localStorage);
+            relatorio += '=== LOCAL STORAGE ===\n';
+            relatorio += `Total de chaves: ${keys.length}\n\n`;
+
+            if (keys.length > 0) {
+                keys.forEach(key => {
+                    const valor = localStorage.getItem(key);
+                    relatorio += `${key}:\n`;
+
+                    try {
+                        const parsed = JSON.parse(valor);
+                        relatorio += JSON.stringify(parsed, null, 2) + '\n\n';
+                    } catch (e) {
+                        relatorio += valor + '\n\n';
+                    }
+                });
+            } else {
+                relatorio += 'LocalStorage VAZIO ✅\n\n';
+            }
+
+            // Verificar fornecedores
+            relatorio += '\n=== VERIFICAÇÃO ===\n';
+
+            const fornecedoresSalvos = localStorage.getItem('fornecedores');
+            if (fornecedoresSalvos) {
+                try {
+                    const fornec = JSON.parse(fornecedoresSalvos);
+                    relatorio += `\n✅ Fornecedores encontrados: ${fornec.length}\n\n`;
+
+                    fornec.forEach((f, i) => {
+                        relatorio += `Fornecedor ${i + 1}: ${f.nome}\n`;
+                        relatorio += `  Cidade: ${f.cidade}\n`;
+
+                        if (f.distanciasClientes) {
+                            const cidades = Object.keys(f.distanciasClientes);
+                            relatorio += `  Cidades cadastradas: ${cidades.length}\n`;
+
+                            cidades.forEach(cidade => {
+                                const dist = f.distanciasClientes[cidade];
+                                relatorio += `    - ${cidade}: ${dist} km ${dist > 0 ? '✅' : '⚠️ (zerado)'}\n`;
+                            });
+                        } else {
+                            relatorio += `  ❌ SEM distanciasClientes!\n`;
+                        }
+                        relatorio += '\n';
+                    });
+                } catch (e) {
+                    relatorio += `❌ Erro ao parse fornecedores: ${e.message}\n`;
+                }
+            } else {
+                relatorio += '⚠️ Nenhum fornecedor salvo no localStorage\n';
+                relatorio += '👉 Abra o sistema e ele criará dados de exemplo\n\n';
+            }
+
+            estadoAtual.textContent = relatorio;
+            log('✅ Verificação concluída! Veja o resultado acima.', 'success');
+        }
+
+        // Verificação automática ao carregar
+        window.addEventListener('load', () => {
+            log('🎯 DEBUG carregado!', 'success');
+            log('💡 Use os botões acima para diagnosticar problemas', 'info');
+            log('', 'info');
+            verificarEstado();
+        });
+    </script>
+</body>
+</html>

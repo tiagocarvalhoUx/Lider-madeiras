@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🧪 Teste Rápido - Visualização dos Cards</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            padding: 40px;
+        }
+        .test-info {
+            background: #fff3cd;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            border-left: 4px solid #ffc107;
+        }
+        .test-info h2 {
+            color: #856404;
+            margin-bottom: 10px;
+        }
+        .test-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .test-buttons button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+        .test-buttons button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="text-align: center; color: #667eea; margin-bottom: 30px;">
+            🧪 Teste Rápido - Visualização dos Cards
+        </h1>
+
+        <div class="test-info">
+            <h2>📋 Instruções de Teste:</h2>
+            <ol style="line-height: 2;">
+                <li><strong>Passo 1:</strong> Veja os 5 cards com distância <code>0 km</code> abaixo</li>
+                <li><strong>Passo 2:</strong> Clique em "Simular Cálculo"</li>
+                <li><strong>Passo 3:</strong> Veja os valores mudando em tempo real!</li>
+                <li><strong>Passo 4:</strong> Abra o Console (F12) para ver os logs detalhados</li>
+            </ol>
+        </div>
+
+        <div class="test-buttons">
+            <button onclick="simularCalculo()">🔄 Simular Cálculo</button>
+            <button onclick="resetarDistancias()">♻️ Resetar para 0</button>
+            <button onclick="mostrarDados()">📊 Mostrar Dados no Console</button>
+        </div>
+
+        <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; border-left: 4px solid #667eea;">
+            <h3 style="color: #667eea; margin-bottom: 15px;">📍 Distâncias para Clientes</h3>
+            <div class="distancias-grid" id="cardsContainer"></div>
+        </div>
+    </div>
+
+    <script>
+        // Dados de teste
+        let distanciasClientes = {
+            'Campo Grande/MS': 0,
+            'São Paulo/SP': 0,
+            'Curitiba/PR': 0,
+            'Porto Alegre/RS': 0,
+            'Belo Horizonte/MG': 0
+        };
+
+        // Valores reais esperados (de Cuiabá/MT)
+        const distanciasEsperadas = {
+            'Campo Grande/MS': 700,
+            'São Paulo/SP': 1650,
+            'Curitiba/PR': 1950,
+            'Porto Alegre/RS': 2400,
+            'Belo Horizonte/MG': 1450
+        };
+
+        function renderizarCards() {
+            const container = document.getElementById('cardsContainer');
+
+            const html = Object.entries(distanciasClientes).map(([cidade, distancia]) => {
+                const distanciaFormatada = Math.round(distancia);
+
+                return `
+                <div class="distancia-card" data-cidade="${cidade}">
+                    <div class="distancia-icone">📍</div>
+                    <div class="distancia-cidade">${cidade}</div>
+                    <div class="distancia-valor">${distanciaFormatada}</div>
+                    <div class="distancia-km">km</div>
+                </div>
+                `;
+            }).join('');
+
+            container.innerHTML = html;
+
+            console.log('🔄 Cards renderizados:', distanciasClientes);
+        }
+
+        function atualizarCardVisual(cidade, distancia) {
+            const cards = document.querySelectorAll('.distancia-card');
+
+            cards.forEach(card => {
+                if (card.getAttribute('data-cidade') === cidade) {
+                    const valorElement = card.querySelector('.distancia-valor');
+                    if (valorElement) {
+                        valorElement.textContent = Math.round(distancia);
+
+                        // Efeito visual de atualização
+                        card.style.transition = 'all 0.3s';
+                        card.style.borderColor = '#28a745';
+                        card.style.background = 'linear-gradient(to bottom, #d4edda 0%, white 30%)';
+
+                        setTimeout(() => {
+                            card.style.borderColor = '#e9ecef';
+                            card.style.background = 'white';
+                        }, 1000);
+
+                        console.log(`✨ Card atualizado visualmente: ${cidade} = ${distancia} km`);
+                    }
+                }
+            });
+        }
+
+        async function simularCalculo() {
+            console.log('🚀 Iniciando simulação de cálculo...');
+
+            const cidades = Object.keys(distanciasClientes);
+
+            for (let i = 0; i < cidades.length; i++) {
+                const cidade = cidades[i];
+                const distanciaCalculada = distanciasEsperadas[cidade];
+
+                console.log(`📍 [${i + 1}/${cidades.length}] Simulando: Cuiabá/MT → ${cidade}`);
+
+                // Aguardar 800ms para simular chamada de API
+                await new Promise(resolve => setTimeout(resolve, 800));
+
+                // Atualizar distância
+                distanciasClientes[cidade] = distanciaCalculada;
+
+                console.log(`✅ ${cidade}: ${distanciaCalculada} km`);
+                console.log(`📊 Objeto atualizado:`, {...distanciasClientes});
+
+                // ATUALIZAR CARD DIRETAMENTE (sem re-renderizar tudo)
+                atualizarCardVisual(cidade, distanciaCalculada);
+
+                console.log(`🔄 Card ${cidade} atualizado com ${distanciaCalculada} km`);
+            }
+
+            console.log('🎉 Simulação concluída!');
+            alert('✅ Simulação concluída!\n\nTodos os 5 cards foram atualizados.\nVeja os logs no console (F12).');
+        }
+
+        function resetarDistancias() {
+            console.log('♻️ Resetando distâncias para 0...');
+
+            Object.keys(distanciasClientes).forEach(cidade => {
+                distanciasClientes[cidade] = 0;
+            });
+
+            renderizarCards();
+
+            console.log('✅ Distâncias resetadas:', distanciasClientes);
+        }
+
+        function mostrarDados() {
+            console.log('═══════════════════════════════════');
+            console.log('📊 DADOS ATUAIS:');
+            console.log('═══════════════════════════════════');
+            console.table(Object.entries(distanciasClientes).map(([cidade, distancia]) => ({
+                Cidade: cidade,
+                Distância: `${distancia} km`
+            })));
+            console.log('═══════════════════════════════════');
+        }
+
+        // Renderizar cards iniciais
+        renderizarCards();
+
+        console.log('🎯 Teste Rápido carregado!');
+        console.log('💡 Dicas:');
+        console.log('  1. Clique em "Simular Cálculo" para ver os cards mudando');
+        console.log('  2. Clique em "Resetar" para voltar tudo para 0');
+        console.log('  3. Clique em "Mostrar Dados" para ver tabela no console');
+    </script>
+</body>
+</html>

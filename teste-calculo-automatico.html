@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste - Cálculo Automático em Lote</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #6c757d;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+
+        .input-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .input-section h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 14px 28px;
+            border: none;
+            border-radius: 50px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(102, 126, 234, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .distancias-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .distancia-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 18px 14px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            min-height: 110px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .distancia-card.calculando {
+            border-color: #ffc107;
+            background: #fff3cd;
+        }
+
+        .distancia-card.sucesso {
+            border-color: #28a745;
+            background: linear-gradient(to bottom, #d4edda 0%, white 30%);
+        }
+
+        .distancia-card.erro {
+            border-color: #dc3545;
+            background: linear-gradient(to bottom, #f8d7da 0%, white 30%);
+        }
+
+        .distancia-icone {
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+
+        .distancia-cidade {
+            font-size: 13px;
+            color: #495057;
+            margin-bottom: 14px;
+            font-weight: 600;
+        }
+
+        .distancia-valor {
+            font-size: 36px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 4px;
+        }
+
+        .distancia-km {
+            font-size: 13px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+
+        .log {
+            background: #212529;
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+
+        .log-line {
+            margin: 3px 0;
+        }
+
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff4444; }
+        .log-warning { color: #ffaa00; }
+        .log-info { color: #00aaff; }
+
+        .progresso {
+            background: #e9ecef;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progresso-barra {
+            background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading {
+            display: inline-block;
+            animation: spin 1s linear infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 Teste - Cálculo Automático de Distâncias</h1>
+        <p class="subtitle">Calcula distâncias para múltiplas cidades usando OSRM</p>
+
+        <div class="input-section">
+            <h3>🏭 Cidade Origem (Fornecedor)</h3>
+            <input type="text" id="cidadeOrigem" placeholder="Ex: Cuiabá/MT" value="Cuiabá/MT">
+
+            <button class="btn" onclick="calcularTodasDistancias()">
+                🔄 Calcular Distâncias para Todas as Cidades
+            </button>
+        </div>
+
+        <div class="progresso" id="progressoContainer" style="display: none;">
+            <div class="progresso-barra" id="progressoBarra">0%</div>
+        </div>
+
+        <div class="distancias-grid" id="distanciasGrid"></div>
+
+        <div class="log" id="logConsole" style="display: none;"></div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script>
+        const CIDADES_DESTINO = [
+            'Campo Grande/MS',
+            'São Paulo/SP',
+            'Curitiba/PR',
+            'Porto Alegre/RS',
+            'Belo Horizonte/MG'
+        ];
+
+        const logs = [];
+        let distanciasCalculadas = {};
+
+        function addLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString('pt-BR');
+            const logEntry = `[${timestamp}] ${message}`;
+            logs.push({ message: logEntry, type });
+
+            const logConsole = document.getElementById('logConsole');
+            logConsole.style.display = 'block';
+
+            const logLine = document.createElement('div');
+            logLine.className = `log-line log-${type}`;
+            logLine.textContent = logEntry;
+            logConsole.appendChild(logLine);
+            logConsole.scrollTop = logConsole.scrollHeight;
+
+            console.log(logEntry);
+        }
+
+        function renderizarCards() {
+            const grid = document.getElementById('distanciasGrid');
+
+            grid.innerHTML = CIDADES_DESTINO.map(cidade => `
+                <div class="distancia-card" id="card-${cidade.replace(/\//g, '-')}">
+                    <div class="distancia-icone">📍</div>
+                    <div class="distancia-cidade">${cidade}</div>
+                    <div class="distancia-valor">-</div>
+                    <div class="distancia-km">km</div>
+                </div>
+            `).join('');
+        }
+
+        function atualizarCard(cidade, distancia, status) {
+            const cardId = `card-${cidade.replace(/\//g, '-')}`;
+            const card = document.getElementById(cardId);
+
+            if (!card) return;
+
+            card.className = `distancia-card ${status}`;
+
+            if (status === 'sucesso') {
+                card.querySelector('.distancia-valor').textContent = distancia;
+            } else if (status === 'erro') {
+                card.querySelector('.distancia-valor').textContent = 'Erro';
+                card.querySelector('.distancia-valor').style.fontSize = '18px';
+            }
+        }
+
+        function atualizarProgresso(atual, total) {
+            const progressoContainer = document.getElementById('progressoContainer');
+            const progressoBarra = document.getElementById('progressoBarra');
+
+            progressoContainer.style.display = 'block';
+
+            const percentual = Math.round((atual / total) * 100);
+            progressoBarra.style.width = percentual + '%';
+            progressoBarra.textContent = `${atual}/${total} - ${percentual}%`;
+        }
+
+        async function calcularTodasDistancias() {
+            const cidadeOrigem = document.getElementById('cidadeOrigem').value.trim();
+
+            if (!cidadeOrigem) {
+                alert('❌ Digite a cidade de origem!');
+                return;
+            }
+
+            // Limpar console
+            document.getElementById('logConsole').innerHTML = '';
+            logs.length = 0;
+
+            // Renderizar cards vazios
+            renderizarCards();
+
+            addLog(`🚀 Iniciando cálculo em lote de ${cidadeOrigem}...`, 'info');
+            addLog(`📍 Total de cidades: ${CIDADES_DESTINO.length}`, 'info');
+
+            const inicio = Date.now();
+            let sucessos = 0;
+            let falhas = 0;
+
+            for (let i = 0; i < CIDADES_DESTINO.length; i++) {
+                const cidadeDestino = CIDADES_DESTINO[i];
+
+                addLog(`🔍 Calculando ${i + 1}/${CIDADES_DESTINO.length}: ${cidadeOrigem} → ${cidadeDestino}`, 'info');
+
+                // Atualizar card como "calculando"
+                atualizarCard(cidadeDestino, 0, 'calculando');
+
+                try {
+                    const resultado = await calcularDistanciaInteligente(cidadeOrigem, cidadeDestino);
+
+                    distanciasCalculadas[cidadeDestino] = resultado.distancia;
+
+                    addLog(`✅ ${cidadeDestino}: ${resultado.distancia} km (${resultado.metodo})`, 'success');
+
+                    // Atualizar card com sucesso
+                    atualizarCard(cidadeDestino, resultado.distancia, 'sucesso');
+
+                    sucessos++;
+                } catch (error) {
+                    addLog(`❌ ${cidadeDestino}: ${error.message}`, 'error');
+
+                    // Atualizar card com erro
+                    atualizarCard(cidadeDestino, 0, 'erro');
+
+                    falhas++;
+                }
+
+                // Atualizar progresso
+                atualizarProgresso(i + 1, CIDADES_DESTINO.length);
+
+                // Aguardar 500ms entre requisições para não sobrecarregar a API
+                if (i < CIDADES_DESTINO.length - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                }
+            }
+
+            const tempoTotal = ((Date.now() - inicio) / 1000).toFixed(2);
+
+            addLog('', 'info');
+            addLog('═══════════════════════════════════════', 'info');
+            addLog(`🎉 CÁLCULO CONCLUÍDO!`, 'success');
+            addLog(`⏱️  Tempo total: ${tempoTotal}s`, 'info');
+            addLog(`✅ Sucessos: ${sucessos}`, 'success');
+            addLog(`❌ Falhas: ${falhas}`, falhas > 0 ? 'error' : 'info');
+            addLog('═══════════════════════════════════════', 'info');
+
+            // Mostrar JSON das distâncias
+            if (sucessos > 0) {
+                addLog('', 'info');
+                addLog('📋 JSON das distâncias calculadas:', 'info');
+                addLog(JSON.stringify(distanciasCalculadas, null, 2), 'success');
+            }
+        }
+
+        // Inicializar cards vazios
+        renderizarCards();
+        addLog('🎯 Sistema pronto! Digite a cidade de origem e clique em "Calcular".', 'success');
+    </script>
+</body>
+</html>
