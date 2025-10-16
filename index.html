@@ -16,11 +16,9 @@
         <div class="tabs">
             <button class="tab active" onclick="showTab(0)">📋 Fornecedores/Clientes</button>
             <button class="tab" onclick="showTab(1)">💰 Preços</button>
-            <button class="tab" onclick="showTab(2)">🚛 Caminhões</button>
-            <button class="tab" onclick="showTab(3)">📍 Dist. Clientes</button>
-            <button class="tab" onclick="showTab(4)">🎯 Simulação</button>
-            <button class="tab" onclick="showTab(5)">🏆 Resultados</button>
-            <button class="tab" onclick="showTab(6)">📞 Telefones</button>
+            <button class="tab" onclick="showTab(2)">📍 Dist. Clientes</button>
+            <button class="tab" onclick="showTab(3)">🎯 Simulação</button>
+            <button class="tab" onclick="showTab(4)">🏆 Resultados</button>
         </div>
 
         <div class="content">
@@ -82,37 +80,10 @@
                 </div>
             </div>
 
-            <!-- ABA 3: CAMINHÕES -->
+            <!-- ABA 3: DISTÂNCIAS -->
             <div class="tab-content">
                 <div class="section">
-                    <h3>Aba 3: CONFIG CAMINHÕES</h3>
-                    <p style="margin-bottom: 12px; font-size: 13px;">Configuração dos caminhões</p>
-
-                    <div class="alert success">
-                        <strong>✏️ Campos Editáveis:</strong> Ajuste capacidades e preços!
-                    </div>
-
-                    <table id="tableCaminhoes">
-                        <thead>
-                            <tr>
-                                <th>Tipo</th>
-                                <th>Capac. (t)</th>
-                                <th>Preço/KM</th>
-                                <th>Obs.</th>
-                            </tr>
-                        </thead>
-                        <tbody id="caminhoesBody">
-                        </tbody>
-                    </table>
-
-                    <button class="btn btn-add" onclick="adicionarCaminhao()">➕ Adicionar Caminhão</button>
-                </div>
-            </div>
-
-            <!-- ABA 4: DISTÂNCIAS -->
-            <div class="tab-content">
-                <div class="section">
-                    <h3>Aba 4: DISTÂNCIAS PARA CLIENTES (KM)</h3>
+                    <h3>Aba 3: DISTÂNCIAS PARA CLIENTES (KM)</h3>
                     <p style="margin-bottom: 12px; font-size: 13px;">Distâncias entre fornecedores e clientes</p>
 
                     <div class="alert" style="margin-bottom: 15px;">
@@ -140,10 +111,10 @@
                 </div>
             </div>
 
-            <!-- ABA 5: SIMULAÇÃO -->
+            <!-- ABA 4: SIMULAÇÃO -->
             <div class="tab-content">
                 <div class="section">
-                    <h3>Aba 5: SIMULAÇÃO VENDA</h3>
+                    <h3>Aba 4: SIMULAÇÃO VENDA</h3>
                     <p style="margin-bottom: 12px; font-size: 13px;">Configure os dados da venda</p>
 
                     <div class="example-box">
@@ -225,10 +196,10 @@
                 </div>
             </div>
 
-            <!-- ABA 6: RESULTADOS -->
+            <!-- ABA 5: RESULTADOS -->
             <div class="tab-content">
                 <div class="section">
-                    <h3>Aba 6: RESULTADOS COMPARAÇÃO</h3>
+                    <h3>Aba 5: RESULTADOS COMPARAÇÃO</h3>
                     <p style="margin-bottom: 12px; font-size: 13px;">Análise de todos os fornecedores/clientes</p>
 
                     <div class="instruction">
@@ -250,32 +221,6 @@
                 </div>
             </div>
 
-            <!-- ABA 7: TELEFONES -->
-            <div class="tab-content">
-                <div class="section">
-                    <h3>Aba 7: CONTATOS TELEFONES</h3>
-                    <p style="margin-bottom: 12px; font-size: 13px;">Lista de contatos dos fornecedores/clientes</p>
-
-                    <div class="alert success">
-                        <strong>✏️ Campos Editáveis:</strong> Adicione telefones e WhatsApp!
-                    </div>
-
-                    <table id="tableTelefones">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Fornecedor/Cliente</th>
-                                <th>Cidade</th>
-                                <th>Telefone</th>
-                                <th>Celular</th>
-                                <th>WhatsApp</th>
-                            </tr>
-                        </thead>
-                        <tbody id="telefonesBody">
-                        </tbody>
-                    </table>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -354,6 +299,27 @@
                         </tbody>
                     </table>
                     <button class="btn-add-produto" onclick="adicionarProdutoModal('Seca')">➕ Adicionar Seco</button>
+                </div>
+
+                <!-- Caminhões -->
+                <div class="modal-section">
+                    <h3>🚛 Caminhões</h3>
+                    <table class="precos-table">
+                        <thead>
+                            <tr>
+                                <th>Tipo</th>
+                                <th>Capac. (t)</th>
+                                <th>Preço/KM</th>
+                                <th>Preço P/ Tonelada</th>
+                                <th>KM do Cliente</th>
+                                <th>Frete Total</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="modalCaminhoes">
+                        </tbody>
+                    </table>
+                    <button class="btn-add-produto" onclick="adicionarCaminhaoModal()">➕ Adicionar Caminhão</button>
                 </div>
             </div>
         </div>

@@ -20,6 +20,9 @@ function abrirModalFornecedor(fornecedorId) {
     // Renderizar preços
     renderizarPrecosModal();
 
+    // Renderizar caminhões
+    renderizarCaminhoesModal();
+
     // Renderizar distâncias
     renderizarDistanciasModal();
 
@@ -46,18 +49,22 @@ function renderizarDadosCadastraisModal() {
         { label: 'Estado', chave: 'estado', editavel: true },
         { label: 'Cidade', chave: 'cidade', editavel: true },
         { label: 'Email', chave: 'email', editavel: true },
-        { label: 'KM Base', chave: 'km', editavel: true }
+        { label: 'Celular', chave: 'celular', editavel: true },
+        { label: 'WhatsApp', chave: 'whatsapp', editavel: true }
     ];
 
-    container.innerHTML = campos.map(campo => `
+    container.innerHTML = campos.map(campo => {
+        const valor = fornecedorAtual[campo.chave] || '-';
+        return `
         <div class="data-item">
             <div class="data-label">${campo.label}</div>
             <div class="data-value ${campo.editavel ? 'modal-editable-cell' : ''}"
                  contenteditable="${campo.editavel}"
                  data-campo="${campo.chave}"
-                 onblur="atualizarCampoFornecedor('${campo.chave}', this.textContent)">${fornecedorAtual[campo.chave]}</div>
+                 onblur="atualizarCampoFornecedor('${campo.chave}', this.textContent)">${valor}</div>
         </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // Renderizar distâncias no modal
@@ -476,6 +483,102 @@ function removerPreco(precoId) {
         precos.splice(index, 1);
         salvarDados();
         renderizarPrecosModal();
+    }
+}
+
+// Renderizar caminhões no modal
+function renderizarCaminhoesModal() {
+    const tbody = document.getElementById('modalCaminhoes');
+
+    if (!fornecedorAtual.caminhoes) {
+        fornecedorAtual.caminhoes = [];
+    }
+
+    if (fornecedorAtual.caminhoes.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #6c757d;">Nenhum caminhão cadastrado</td></tr>';
+        return;
+    }
+
+    tbody.innerHTML = fornecedorAtual.caminhoes.map(caminhao => `
+        <tr>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'tipo', this.textContent)">${caminhao.tipo}</span></td>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'capacidade', this.textContent)">${caminhao.capacidade}</span></td>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'precoPorKm', this.textContent)">${formatarNumero(caminhao.precoPorKm)}</span></td>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'precoPorTonelada', this.textContent)">${formatarNumero(caminhao.precoPorTonelada || 0)}</span></td>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'kmCliente', this.textContent)">${caminhao.kmCliente || 0}</span></td>
+            <td><span class="modal-editable-cell" contenteditable onblur="atualizarCaminhaoFornecedor(${caminhao.id}, 'freteTotal', this.textContent)">${formatarNumero(caminhao.freteTotal || 0)}</span></td>
+            <td><button class="btn-remove" onclick="removerCaminhaoFornecedor(${caminhao.id})">🗑️</button></td>
+        </tr>
+    `).join('');
+}
+
+// Adicionar caminhão no modal
+function adicionarCaminhaoModal() {
+    if (!fornecedorAtual.caminhoes) {
+        fornecedorAtual.caminhoes = [];
+    }
+
+    const novoId = fornecedorAtual.caminhoes.length > 0
+        ? Math.max(...fornecedorAtual.caminhoes.map(c => c.id)) + 1
+        : 1;
+
+    // Tipos padrão de caminhões
+    const tiposPadrao = ['Truck', 'Carreta', 'Bitrem'];
+    const capacidadesPadrao = { 'Truck': 14, 'Carreta': 28, 'Bitrem': 45 };
+    const precoKmPadrao = { 'Truck': 3.50, 'Carreta': 4.50, 'Bitrem': 6.00 };
+    const precoToneladaPadrao = { 'Truck': 250, 'Carreta': 160, 'Bitrem': 133 };
+
+    // Determinar qual tipo usar baseado na quantidade de caminhões já cadastrados
+    const indice = fornecedorAtual.caminhoes.length % tiposPadrao.length;
+    const tipoSelecionado = tiposPadrao[indice];
+
+    const novoCaminhao = {
+        id: novoId,
+        tipo: tipoSelecionado,
+        capacidade: capacidadesPadrao[tipoSelecionado],
+        precoPorKm: precoKmPadrao[tipoSelecionado],
+        precoPorTonelada: precoToneladaPadrao[tipoSelecionado],
+        kmCliente: 0,
+        freteTotal: 0
+    };
+
+    fornecedorAtual.caminhoes.push(novoCaminhao);
+    salvarDados();
+    renderizarCaminhoesModal();
+}
+
+// Atualizar caminhão do fornecedor
+function atualizarCaminhaoFornecedor(caminhaoId, campo, valor) {
+    const caminhao = fornecedorAtual.caminhoes.find(c => c.id === caminhaoId);
+    if (!caminhao) return;
+
+    // Remover formatação
+    valor = valor.replace(/\./g, '').replace(',', '.');
+
+    if (['capacidade', 'precoPorKm', 'precoPorTonelada', 'kmCliente', 'freteTotal'].includes(campo)) {
+        const numeroValor = parseFloat(valor);
+        if (isNaN(numeroValor)) {
+            alert('❌ Valor inválido!');
+            renderizarCaminhoesModal();
+            return;
+        }
+        caminhao[campo] = numeroValor;
+    } else {
+        caminhao[campo] = valor;
+    }
+
+    salvarDados();
+}
+
+// Remover caminhão do fornecedor
+function removerCaminhaoFornecedor(caminhaoId) {
+    if (!confirm('Tem certeza que deseja remover este caminhão?')) return;
+
+    const index = fornecedorAtual.caminhoes.findIndex(c => c.id === caminhaoId);
+    if (index > -1) {
+        fornecedorAtual.caminhoes.splice(index, 1);
+        salvarDados();
+        renderizarCaminhoesModal();
     }
 }
 

@@ -30,7 +30,8 @@ function inicializarDados() {
                 'Curitiba/PR': 0,
                 'Porto Alegre/RS': 0,
                 'Belo Horizonte/MG': 0
-            }
+            },
+            caminhoes: []
         },
         {
             id: 2,
@@ -45,7 +46,8 @@ function inicializarDados() {
                 'Curitiba/PR': 0,
                 'Porto Alegre/RS': 0,
                 'Belo Horizonte/MG': 0
-            }
+            },
+            caminhoes: []
         },
         {
             id: 3,
@@ -60,7 +62,8 @@ function inicializarDados() {
                 'Curitiba/PR': 0,
                 'Porto Alegre/RS': 0,
                 'Belo Horizonte/MG': 0
-            }
+            },
+            caminhoes: []
         }
     ];
 
@@ -76,9 +79,9 @@ function inicializarDados() {
 
     // Caminhões de exemplo
     caminhoes = [
-        { id: 1, tipo: 'Truck', capacidade: 14, precoPorKm: 3.50, observacao: 'Até 14 toneladas' },
-        { id: 2, tipo: 'Carreta', capacidade: 28, precoPorKm: 4.50, observacao: 'Até 28 toneladas' },
-        { id: 3, tipo: 'Bitrem', capacidade: 45, precoPorKm: 6.00, observacao: 'Até 45 toneladas' }
+        { id: 1, tipo: 'Truck', capacidade: 14, precoPorKm: 3.50, precoPorTonelada: 250, kmCliente: 0, freteTotal: 0 },
+        { id: 2, tipo: 'Carreta', capacidade: 28, precoPorKm: 4.50, precoPorTonelada: 160, kmCliente: 0, freteTotal: 0 },
+        { id: 3, tipo: 'Bitrem', capacidade: 45, precoPorKm: 6.00, precoPorTonelada: 133, kmCliente: 0, freteTotal: 0 }
     ];
 
     // Distâncias de exemplo
@@ -133,11 +136,17 @@ function migrarCidadesPadrao() {
                 migrado = true;
             }
         });
+
+        // Se o fornecedor não tem array de caminhões, criar array vazio
+        if (!fornecedor.caminhoes) {
+            fornecedor.caminhoes = [];
+            migrado = true;
+        }
     });
 
     // Se houve migração, salvar os dados
     if (migrado) {
-        console.log('✅ Dados migrados! Cidades padrão adicionadas aos fornecedores.');
+        console.log('✅ Dados migrados! Cidades padrão e caminhões adicionados aos fornecedores.');
         salvarDados();
     }
 }
@@ -163,7 +172,8 @@ function adicionarFornecedor() {
         cidade: 'Cidade/UF',
         email: 'email@exemplo.com',
         km: 0,
-        distanciasClientes: distanciasClientes
+        distanciasClientes: distanciasClientes,
+        caminhoes: []
     };
 
     fornecedores.push(novoFornecedor);
@@ -195,7 +205,9 @@ function adicionarCaminhao() {
         tipo: 'Novo Tipo',
         capacidade: 10,
         precoPorKm: 3.00,
-        observacao: 'Observação'
+        precoPorTonelada: 300,
+        kmCliente: 0,
+        freteTotal: 0
     };
 
     caminhoes.push(novoCaminhao);

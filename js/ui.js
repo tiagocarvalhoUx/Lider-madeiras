@@ -54,7 +54,7 @@ function renderizarCaminhoes() {
     const tbody = document.getElementById('caminhoesBody');
 
     if (caminhoes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #6c757d;">Nenhum caminhão cadastrado</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #6c757d;">Nenhum caminhão cadastrado</td></tr>';
         return;
     }
 
@@ -63,7 +63,9 @@ function renderizarCaminhoes() {
             <td data-label="Tipo"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'tipo', this.textContent)">${c.tipo}</span></td>
             <td data-label="Capacidade"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'capacidade', this.textContent)">${c.capacidade}</span></td>
             <td data-label="Preço/KM"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'precoPorKm', this.textContent)">${formatarNumero(c.precoPorKm)}</span></td>
-            <td data-label="Observação"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'observacao', this.textContent)">${c.observacao}</span></td>
+            <td data-label="Preço P/ Tonelada"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'precoPorTonelada', this.textContent)">${formatarNumero(c.precoPorTonelada || 0)}</span></td>
+            <td data-label="KM do Cliente"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'kmCliente', this.textContent)">${c.kmCliente || 0}</span></td>
+            <td data-label="Frete Total"><span class="editable-cell" contenteditable onblur="atualizarCaminhao(${c.id}, 'freteTotal', this.textContent)">${formatarNumero(c.freteTotal || 0)}</span></td>
         </tr>
     `).join('');
 }
@@ -254,7 +256,7 @@ function atualizarCaminhao(id, campo, valor) {
     // Remover formatação
     valor = valor.replace(/\./g, '').replace(',', '.');
 
-    if (['capacidade', 'precoPorKm'].includes(campo)) {
+    if (['capacidade', 'precoPorKm', 'precoPorTonelada', 'kmCliente', 'freteTotal'].includes(campo)) {
         const numeroValor = parseFloat(valor);
         if (isNaN(numeroValor)) {
             alert('❌ Valor inválido!');
