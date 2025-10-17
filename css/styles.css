@@ -21,20 +21,57 @@ body {
 }
 
 .header {
-    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
-    color: white;
+    position: relative;
+    background: linear-gradient(135deg, #2c2c2c 0%, #000000 100%);
+    color: #ffffff;
     padding: 20px;
     text-align: center;
+    overflow: hidden;
+}
+
+.header canvas,
+.header #hyperspeed-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.header #hyperspeed-canvas {
+    z-index: 1;
+}
+
+.header #hyperspeed-canvas canvas {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+}
+
+.header #lightning-canvas {
+    z-index: 2;
+    mix-blend-mode: screen;
+    opacity: 0.7;
+}
+
+.header #fluid-canvas {
+    z-index: 3;
+    mix-blend-mode: screen;
+    pointer-events: auto;
 }
 
 .header h1 {
     font-size: 20px;
     margin-bottom: 8px;
+    position: relative;
+    z-index: 2;
 }
 
 .header p {
     font-size: 13px;
     opacity: 0.9;
+    position: relative;
+    z-index: 2;
 }
 
 .tabs {

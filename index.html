@@ -6,15 +6,20 @@
     <title>Sistema Grupo Lider Madeiras</title>
     <link rel="icon" type="image/jpeg" href="./img/lider-logo.jpeg">
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 </head>
 <body>
     <div class="container">
         <div class="header">
+            <div id="hyperspeed-canvas"></div>
+            <canvas id="lightning-canvas"></canvas>
+            <canvas id="fluid-canvas"></canvas>
             <h1>
                 <img src="./img/lider-logo.jpeg" alt="Líder Madeiras" style="height: 50px; vertical-align: middle; margin-right: 12px; border-radius: 8px;">
                 Sistema Grupo Líder Madeiras
             </h1>
-            
+
         </div>
 
         <div class="tabs">
@@ -375,6 +380,9 @@
     </div>
 
     <!-- Scripts JavaScript -->
+    <script src="js/hyperspeed-effect.js"></script>
+    <script src="js/lightning-effect.js"></script>
+    <script src="js/fluid-interactive.js"></script>
     <script src="js/config.js"></script>
     <script src="js/data.js"></script>
     <script src="js/api.js"></script>
@@ -383,5 +391,49 @@
     <script src="js/tabs.js"></script>
     <script src="js/modal.js"></script>
     <script src="js/main.js"></script>
+    <script>
+        // Initialize all three effects on header
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hyperspeed road effect (bottom layer)
+            initHyperspeedEffect('hyperspeed-canvas', {
+                roadWidth: 9,
+                islandWidth: 2,
+                length: 400,
+                fov: 90,
+                speedFactor: 1,
+                colors: {
+                    roadColor: 0x080808,
+                    islandColor: 0x0a0a0a,
+                    leftCars: [0xff6ec7, 0x7b2cbf, 0xc77dff],
+                    rightCars: [0x00d9ff, 0x4361ee, 0x4cc9f0],
+                    sticks: 0x00d9ff
+                }
+            });
+
+            // Lightning effect (middle layer)
+            initLightningEffect('lightning-canvas', {
+                hue: 230,        // Cor em graus (0-360): 230 = azul
+                xOffset: 0,      // Deslocamento horizontal
+                speed: 1,        // Velocidade da animação
+                intensity: 0.6,  // Intensidade do brilho (reduzida)
+                size: 1          // Tamanho/escala do efeito
+            });
+
+            // Fluid interactive effect (top layer)
+            initFluidInteractive('fluid-canvas', {
+                SIM_RESOLUTION: 128,
+                DYE_RESOLUTION: 1024,
+                DENSITY_DISSIPATION: 0.98,
+                VELOCITY_DISSIPATION: 0.99,
+                PRESSURE: 0.8,
+                PRESSURE_ITERATIONS: 20,
+                CURL: 30,
+                SPLAT_RADIUS: 0.25,
+                SPLAT_FORCE: 6000,
+                COLOR_UPDATE_SPEED: 10,
+                TRANSPARENT: true
+            });
+        });
+    </script>
 </body>
 </html>
